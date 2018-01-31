@@ -39,7 +39,7 @@ class Channels {
         switch (data.name) {
             case "TheCatsOfCatBlockUsersChannel": klass = TheCatsOfCatBlockUsersChannel;
                 break;
-            case "AprilFoolsCatsChannel": klass = AprilFoolsCatsChannel;
+            case "CustomChannel": klass = CustomChannel;
                 break;
             case "TheCatsOfProjectCATS": klass = TheCatsOfProjectCATS;
                 break;
@@ -145,11 +145,11 @@ class Channels {
                 this.add({ name: "TheCatsOfProjectCATS", param: undefined, enabled: true });
                 this.add({ name: "TheCatsOfCatBlockUsersChannel", param: undefined,
                       enabled: false });
-                this.add({ name: "AprilFoolsCatsChannel", param: undefined, enabled: false });
+                this.add({ name: "CustomChannel", param: undefined, enabled: false });
             } else {
                 this.add({ name: "TheCatsOfCatBlockUsersChannel", param: undefined,
                       enabled: true });
-                this.add({ name: "AprilFoolsCatsChannel", param: undefined, enabled: true });
+                this.add({ name: "CustomChannel", param: undefined, enabled: true });
                 this.add({ name: "TheCatsOfProjectCATS", param: undefined, enabled: false });
             }
         } else {
@@ -204,54 +204,32 @@ class Channel {
     }
 }
 
-// Channel containing hard coded cats loaded from disk.
-class AprilFoolsCatsChannel extends Channel {
+//Custom channel from images and config file in catblock/custom
+class CustomChannel extends Channel {
     constructor() {
         super();
     }
 
     _getLatestListings(callback) {
-        function L(w, h, f) {
-            var folder = chrome.runtime.getURL("catblock/pix/");
+        function L(w, h, f, title, url) {
             return new Listing({
-                width: w, height: h, url: folder + f,
-                attribution_url: "http://chromeadblock.com/catblock/credits.html",
-                title: "This is a cat!"
+                width: w, height: h, url: f,
+                attribution_url: url,
+                title: title
             });
         }
-        // the listings never change
-        callback([
-            L(270, 256, "5.jpg"),
-            L(350, 263, "6.jpg"),
-            L(228, 249, "big1.jpg"),
-            L(236, 399, "big2.jpg"),
-            L(340, 375, "big3.jpg"),
-            L(170, 240, "big4.jpg"),
-            L(384, 288, "1.jpg"),
-            L(132, 91, "7.jpg"),
-            L(121, 102, "9.jpg"),
-            L(115, 125, "small1.jpg"),
-            L(126, 131, "small2.jpg"),
-            L(105, 98, "small3.jpg"),
-            L(135, 126, "small4.jpg"),
-            L(133, 108, "small5.jpg"),
-            L(120, 99, "small6.jpg"),
-            L(124, 96, "small7.jpg"),
-            L(119, 114, "small8.jpg"),
-            L(382, 137, "wide1.jpg"),
-            L(470, 102, "wide2.jpg"),
-            L(251, 90, "wide3.jpg"),
-            L(469, 162, "wide4.jpg"),
-            L(240, 480, "8.jpg"),
-            L(103, 272, "tall3.jpg"),
-            L(139, 401, "tall4.jpg"),
-            L(129, 320, "tall5.jpg"),
-            L(109, 385, "tall6.jpg")
-        ]);
-    }
-
+        var images = [];
+        var folder = chrome.runtime.getURL("catblock/custom/");
+        jQuery.get(folder + 'config.csv', function(data) {
+          var result = $.csv.toArrays(data);
+          for (var i = 1; i < result.length; i++)
+          {
+            images.push(L(result[i][0], result[i][1], folder + result[i][2], result[i][3], result[i][4]))
+          }
+        });
+        callback(images);
+      }
 }
-
 
 // Abstract base class for Flickr-based Channels.
 class FlickrChannel extends Channel {
