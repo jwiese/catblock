@@ -226,8 +226,8 @@ class CustomChannel extends Channel {
           {
             images.push(L(result[i][0], result[i][1], folder + result[i][2], result[i][3], result[i][4]))
           }
+            callback(images);
         });
-        callback(images);
       }
 }
 
