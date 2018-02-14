@@ -240,7 +240,7 @@ class FlickrChannel extends Channel {
     // See http://www.flickr.com/services/api/misc.urls.html Size Suffixes.
     // Change this if we want a different size.
     static get _size() {
-        return "n"; // 320 on longest side
+        return "o"; // Flickr doesn't support gifs in anything but original resolution. TODO make this smarter
     }
 
     // Hit the Flickr API |method| passing in |args| with some constants added.
@@ -252,8 +252,7 @@ class FlickrChannel extends Channel {
             license: "4,6,7",  // commercial
             privacy_filter: 1, // no private photos
             safe_search: 1,    // no porn.  Come on, teenagers; grow up.
-            content_type: 1,   // photos only, in some API calls
-            media: "photos",   // photos only, in other API calls
+            //Removed filters for image types. We want to be able to retrieve more than just photos
             extras: "url_" + FlickrChannel._size, // Get URL + height data
             sort: "relevance",
             format: "json",
@@ -283,8 +282,7 @@ class FlickrChannel extends Channel {
                 height: photo["height_" + s],
                 url: photo["url_" + s],
                 title: photo.title,
-                attribution_url: "http://www.flickr.com/photos/" +
-                (photo.owner || photos.owner) + "/" + photo.id
+                attribution_url: photo.title // Image owner can set the redirect link in the Flickr image title.
             });
             if (typeof listing.url !== "undefined") {
                 result.push(listing);
