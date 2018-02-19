@@ -293,8 +293,9 @@ var picinjection = {
                     card.css(pos);
                 }
 
-                newPic.infoCard = $("<div>", {
+                newPic.infoCard = $("<a>", {
                     "class": "picinjection-infocard",
+                    href: placement.attribution_url,
                     css: {
                         "position": "absolute",
                         "min-width": cardsize.width,
@@ -305,7 +306,8 @@ var picinjection = {
                         "border": "2px solid rgb(128, 128, 128)",
                         "font": "normal small Arial, sans-serif",
                         "color": "black",
-                        "background-color": "rgba(188, 188, 188, 0.7)"
+                        "background-color": "rgba(188, 188, 188, 0.0)",
+                        cursor: "pointer"
                     } });
                 newPic.infoCard.appendTo("body");
                 var folder = "img/";
@@ -344,12 +346,9 @@ var picinjection = {
                     }
                 });
                 wrapper.
-                append($("<i>", { text: placement.photo_title })).
                 append("<br/><br/>").
                 append($("<a>", {
-                    href: placement.attribution_url,
-                    target: "_blank",
-                    text: "See Original"
+                    href: placement.attribution_url
                 }));
                 wrapper.appendTo(newPic.infoCard);
                 wrapper.css("margin-top", (newPic.infoCard.height() - wrapper.height()) / 2);
