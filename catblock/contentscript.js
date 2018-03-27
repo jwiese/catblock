@@ -223,10 +223,7 @@ var picinjection = {
                     width: placement.width + "px",
                     height: placement.height + "px",
                     background: "url(" + placement.url + ") no-repeat",
-                    backgroundPosition: "-" + placement.left + "px -" + placement.top + "px",
                     backgroundSize: placement.x + "px " + placement.y + "px",
-                    margin: placement.offsettop + "px " + placement.offsetleft + "px",
-                    // nytimes.com float:right ad at top is on the left without this
                     "float": (window.getComputedStyle(el).float || undefined)
                 };
                 for (var k in css) {
@@ -447,10 +444,24 @@ var picinjection = {
                 if (displayVal === "none") {
                     addedImgs[i].style.display = "";
                 }
+                //IF the container exists, add the image to it. Else create the container and wrap the image in it.
+                var parent = $(addedImgs[i]).parent();
+                var child = parent.find(".ad_Holder");
+                if (parent.attr('class') == "ad_Holder")
+                {
+
+                }
+                else if(child.length >= 1)
+                {
+                  parent.find(".ad_Holder").append(addedImgs[i])
+                }
+                else
+                {
+                  $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;"></div>');
+                }
             }
 
         });
-
     },
 
     translate: function(key) {
