@@ -450,11 +450,11 @@ var picinjection = {
                 var next = $(addedImgs[i]).next();
                 var prev = $(addedImgs[i]).prev();
 
-                if (next.attr('class') == "ad_Holder")
+                if (next.attr('class') == "ad_Holder" || next.next().attr('class') == "ad_Holder")
                 {
                   next.append(addedImgs[i]);
                 }
-                else if (prev.attr('class') == "ad_Holder")
+                else if (prev.attr('class') == "ad_Holder" || prev.prev().attr('class') == "ad_Holder")
                 {
                   prev.append(addedImgs[i]);
                 }
@@ -462,7 +462,7 @@ var picinjection = {
                 {
                     if(parent.attr('class') != "ad_Holder")
                     {
-                      $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;"></div>');
+                      $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;"></div>');
                     }
                 }
 
