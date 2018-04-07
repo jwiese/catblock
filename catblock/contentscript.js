@@ -458,7 +458,7 @@ var picinjection = {
                 {
                   prev.append(addedImgs[i]);
                 }
-                else if (next.attr('class') == "picinjection-image" || prev.attr('class') == "picinjection-image")
+                else
                 {
                     if(parent.attr('class') != "ad_Holder")
                     {
@@ -466,11 +466,10 @@ var picinjection = {
                     }
                 }
 
-                // if (parent.attr('class') == "ad_Holder" && child.length > 2)
-                // {
-                //   parent.css({"display": "flex", "flex-direction": "row", "flex-wrap": "wrap", "justify-content": "center"});
-                // }
-
+                if (parent.attr('class') == "ad_Holder" && parent.children().length > 2)
+                {
+                  $(addedImgs[i]).remove()
+                }
             }
 
         });
