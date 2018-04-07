@@ -447,18 +447,30 @@ var picinjection = {
                 //IF the container exists, add the image to it. Else create the container and wrap the image in it.
                 var parent = $(addedImgs[i]).parent();
                 var child = parent.find(".ad_Holder");
-                if (parent.attr('class') == "ad_Holder")
-                {
+                var next = $(addedImgs[i]).next();
+                var prev = $(addedImgs[i]).prev();
 
-                }
-                else if(child.length >= 1)
+                if (next.attr('class') == "ad_Holder")
                 {
-                  parent.find(".ad_Holder").append(addedImgs[i])
+                  next.append(addedImgs[i]);
                 }
-                else
+                else if (prev.attr('class') == "ad_Holder")
                 {
-                  $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;"></div>');
+                  prev.append(addedImgs[i]);
                 }
+                else if (next.attr('class') == "picinjection-image" || prev.attr('class') == "picinjection-image")
+                {
+                    if(parent.attr('class') != "ad_Holder")
+                    {
+                      $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center;"></div>');
+                    }
+                }
+
+                // if (parent.attr('class') == "ad_Holder" && child.length > 2)
+                // {
+                //   parent.css({"display": "flex", "flex-direction": "row", "flex-wrap": "wrap", "justify-content": "center"});
+                // }
+
             }
 
         });
