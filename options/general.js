@@ -18,7 +18,7 @@ $(function() {
         $(".exclude_safari_content_blocking").hide();
     }
     $("input.feature[type='text']").change(function() {
-        BGcall("set_setting", name, is_enabled, $(this).val());
+        BGcall("set_user", $(this).val());
     });
     $("input.feature[type='checkbox']").change(function() {
         var is_enabled = $(this).is(":checked");

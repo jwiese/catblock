@@ -654,6 +654,10 @@ function set_setting(name, is_enabled) {
     }
 }
 
+function set_user(new_user_id) {
+    _settings.set("user_id", new_user_id);
+}
+
 function disable_setting(name) {
     _settings.set(name, false);
 }
