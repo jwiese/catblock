@@ -81,7 +81,8 @@ class Settings {
             show_context_menu_items: true,
             show_advanced_options: false,
             display_stats: true,
-            display_menu_stats: true
+            display_menu_stats: true,
+            user_id: "",
         };
         var settings = storage_get("settings") || {};
         this._data = $.extend(defaults, settings);
@@ -812,6 +813,7 @@ function getCurrentTabInfo(callback, secondTime) {
             var tab_blocked = blockCounts.getTotalAdsBlocked(tab.id);
             var display_stats = get_settings().display_stats;
             var display_menu_stats = get_settings().display_menu_stats;
+            var user_id = get_settings().user_id;
 
             var result = {
                 tab: tab,
@@ -819,7 +821,8 @@ function getCurrentTabInfo(callback, secondTime) {
                 total_blocked: total_blocked,
                 tab_blocked: tab_blocked,
                 display_stats: display_stats,
-                display_menu_stats: display_menu_stats
+                display_menu_stats: display_menu_stats,
+                user_id: user_id
             };
 
             if (!disabled_site) {

@@ -3,8 +3,13 @@
 $(function() {
 
     for (var name in optionalSettings) {
-        $("#enable_" + name).prop("checked", optionalSettings[name]);
-    }
+          $("#enable_" + name).prop("checked", optionalSettings[name]);
+          if ("user_id" === name)
+          {
+             $("#study_user_id").val(optionalSettings["user_id"]);
+          }
+      }
+
     // Uncheck any incompatible options with the new safari content blocking, and then hide them
     if (optionalSettings.safari_content_blocking) {
         $(".exclude_safari_content_blocking > input").each(function() {
@@ -12,7 +17,9 @@ $(function() {
         });
         $(".exclude_safari_content_blocking").hide();
     }
-
+    $("input.feature[type='text']").change(function() {
+        BGcall("set_setting", name, is_enabled, $(this).val());
+    });
     $("input.feature[type='checkbox']").change(function() {
         var is_enabled = $(this).is(":checked");
         var name = this.id.substring(7); // TODO: hack
