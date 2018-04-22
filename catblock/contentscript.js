@@ -330,7 +330,6 @@ var picinjection = {
                 var folder = "img/";
                 newPic.infoCard.
                 append($("<a>", {
-                    // href: placement.attribution_url,
                     css: {
                       "display": "block",
                       "position": "absolute",
@@ -376,11 +375,6 @@ var picinjection = {
                         "text-align": "center"
                     }
                 });
-                // wrapper.
-                // append("<br/><br/>").
-                // append($("<a>", {
-                //     href: placement.attribution_url
-                // }));
                 wrapper.appendTo(newPic.infoCard);
                 wrapper.css("margin-top", (newPic.infoCard.height() - wrapper.height()) / 2);
 
@@ -395,7 +389,6 @@ var picinjection = {
                     newPic.infoCard.show();
                 });
 
-                $(newPic).click();
                 // Known bug: mouseleave is not called if you mouse over only 1 pixel
                 // of newPic, then leave.  So infoCard is not removed.
                 newPic.infoCard.mouseleave(function() {
@@ -698,12 +691,6 @@ if (!SAFARI) {
         for (var i = 0; i < ads.length; i++) {
             picinjection._augmentHiddenSectionContaining(ads[i]);
         }
-        var replacements = picinjection._getReplaced();
-        for (var j = 0; j < replacements.length; j++)
-        {
-          console.log(replacements[j]);
-        }
-      //  console.log(picinjection._getReplaced());
     }
 
 } else {
