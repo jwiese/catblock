@@ -239,9 +239,6 @@ var picinjection = {
 
                 // Prevent clicking through to ad; go to attribution page instead
                 newPic.addEventListener("click", function(e) {
-                    if (placement.attribution_url) {
-                        window.open(placement.attribution_url);
-                    }
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
@@ -294,6 +291,7 @@ var picinjection = {
                     "class": "picinjection-infocard",
                     css: {
                         "position": "absolute",
+                        "background": placement.attribution_url,
                         "min-width": cardsize.width,
                         "min-height": cardsize.height,
                         "z-index": 1000000,
@@ -303,12 +301,36 @@ var picinjection = {
                         "font": "normal small Arial, sans-serif",
                         "color": "black",
                         "background-color": "rgba(188, 188, 188, 0.0)"
-                    } });
+                    },
+                    click: function() {
+
+
+                      function log(settings) {
+                          $.ajax({
+                              type: "POST",
+                              contentType: "application/json",
+                              url: "https://ckjet97h7e.execute-api.us-east-1.amazonaws.com/Initial/log-image/click",
+                              data: JSON.stringify({ "display_time": String(Date.now()),
+                                                      "user": settings['user_id'],
+                                                      "url": placement.attribution_url}),
+                              success: function ()
+                                  { window.location.href = placement.attribution_url;},
+                              fail: function ()
+                                  {console.log("didn't")},
+                              dataType: "application/json"
+                            });
+                            { window.location.href = placement.attribution_url;}
+                          }
+                          BGcall("get_settings", function(settings) {
+                              log(settings);
+                          });
+                    }
+                   });
                 newPic.infoCard.appendTo("body");
                 var folder = "img/";
                 newPic.infoCard.
                 append($("<a>", {
-                    href: placement.attribution_url,
+                    // href: placement.attribution_url,
                     css: {
                       "display": "block",
                       "position": "absolute",
@@ -354,11 +376,11 @@ var picinjection = {
                         "text-align": "center"
                     }
                 });
-                wrapper.
-                append("<br/><br/>").
-                append($("<a>", {
-                    href: placement.attribution_url
-                }));
+                // wrapper.
+                // append("<br/><br/>").
+                // append($("<a>", {
+                //     href: placement.attribution_url
+                // }));
                 wrapper.appendTo(newPic.infoCard);
                 wrapper.css("margin-top", (newPic.infoCard.height() - wrapper.height()) / 2);
 
@@ -372,6 +394,8 @@ var picinjection = {
                     position_card(newPic.infoCard);
                     newPic.infoCard.show();
                 });
+
+                $(newPic).click();
                 // Known bug: mouseleave is not called if you mouse over only 1 pixel
                 // of newPic, then leave.  So infoCard is not removed.
                 newPic.infoCard.mouseleave(function() {
@@ -413,6 +437,10 @@ var picinjection = {
         }
     },
 
+    _getReplaced: function(){
+      return document.getElementsByClassName("picinjection-image");
+    },
+
     _forceToOriginalSizeAndAugment: function(el, displayValue) {
 
         // We may have already augmented this element...
@@ -437,41 +465,59 @@ var picinjection = {
         }
 
         this._augment(el, function() {
-            el.style.cssText = oldCssText; // Re-hide the section
-            var addedImgs = document.getElementsByClassName("picinjection-image");
-            for (var i = 0; i < addedImgs.length; i++) {
-                var displayVal = window.getComputedStyle(addedImgs[i]).display;
-                if (displayVal === "none") {
-                    addedImgs[i].style.display = "";
-                }
-                //IF the container exists, add the image to it. Else create the container and wrap the image in it.
-                var parent = $(addedImgs[i]).parent();
-                var child = parent.find(".ad_Holder");
-                var next = $(addedImgs[i]).next();
-                var prev = $(addedImgs[i]).prev();
+            function augmentWithSettings(settings) {
+              el.style.cssText = oldCssText; // Re-hide the section
+              var addedImgs = document.getElementsByClassName("picinjection-image");
+              replaced = addedImgs;
+              for (var i = 0; i < addedImgs.length; i++) {
+                  var displayVal = window.getComputedStyle(addedImgs[i]).display;
+                  if (displayVal === "none") {
+                      addedImgs[i].style.display = "";
+                  }
+                  //IF the container exists, add the image to it. Else create the container and wrap the image in it.
+                  var parent = $(addedImgs[i]).parent();
+                  var child = parent.find(".ad_Holder");
+                  var next = $(addedImgs[i]).next();
+                  var prev = $(addedImgs[i]).prev();
 
-                if (next.attr('class') == "ad_Holder" || next.next().attr('class') == "ad_Holder")
-                {
-                  next.append(addedImgs[i]);
-                }
-                else if (prev.attr('class') == "ad_Holder" || prev.prev().attr('class') == "ad_Holder")
-                {
-                  prev.append(addedImgs[i]);
-                }
-                else
-                {
-                    if(parent.attr('class') != "ad_Holder")
-                    {
-                      $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;"></div>');
-                    }
-                }
+                  if (next.attr('class') == "ad_Holder" || next.next().attr('class') == "ad_Holder")
+                  {
+                    next.append(addedImgs[i]);
+                  }
+                  else if (prev.attr('class') == "ad_Holder" || prev.prev().attr('class') == "ad_Holder")
+                  {
+                    prev.append(addedImgs[i]);
+                  }
+                  else
+                  {
+                      if(parent.attr('class') != "ad_Holder")
+                      {
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: "https://ckjet97h7e.execute-api.us-east-1.amazonaws.com/Initial/log-image/",
+                            data: JSON.stringify({ "display_time": String(Date.now()),
+                                                    "user": settings['user_id'],
+                                                    "url": String($(addedImgs[i]).css('background-image')).replace(/\"/g, '')}),
+                            success: function ()
+                                {console.log("worked")},
+                            fail: function ()
+                                {console.log("didn't")},
+                            dataType: "application/json"
+                          });
+                        $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;"></div>');
+                      }
+                  }
 
-                if (parent.attr('class') == "ad_Holder" && parent.children().length > 2)
-                {
-                  $(addedImgs[i]).remove()
-                }
-            }
-
+                  if (parent.attr('class') == "ad_Holder" && parent.children().length > 3)
+                  {
+                    $(addedImgs[i]).remove()
+                  }
+              }
+          }
+          BGcall("get_settings", function(settings) {
+              augmentWithSettings(settings);
+          });
         });
     },
 
@@ -652,7 +698,14 @@ if (!SAFARI) {
         for (var i = 0; i < ads.length; i++) {
             picinjection._augmentHiddenSectionContaining(ads[i]);
         }
+        var replacements = picinjection._getReplaced();
+        for (var j = 0; j < replacements.length; j++)
+        {
+          console.log(replacements[j]);
+        }
+      //  console.log(picinjection._getReplaced());
     }
+
 } else {
     // Augment blocked and hidden ads on Safari
     document.addEventListener("beforeload", function(event) {
