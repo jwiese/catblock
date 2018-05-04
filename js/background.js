@@ -82,7 +82,9 @@ class Settings {
             show_advanced_options: false,
             display_stats: true,
             display_menu_stats: true,
-            user_id: "",
+            ads_per: "3",
+            total_ads: "10",
+            user_id: ""
         };
         var settings = storage_get("settings") || {};
         this._data = $.extend(defaults, settings);
@@ -654,8 +656,8 @@ function set_setting(name, is_enabled) {
     }
 }
 
-function set_user(new_user_id) {
-    _settings.set("user_id", new_user_id);
+function set_text_setting(field, text) {
+    _settings.set(field, text);
 }
 
 function disable_setting(name) {
@@ -818,6 +820,8 @@ function getCurrentTabInfo(callback, secondTime) {
             var display_stats = get_settings().display_stats;
             var display_menu_stats = get_settings().display_menu_stats;
             var user_id = get_settings().user_id;
+            var ads_per = get_settings().ads_per;
+            var total_ads = get_settings().total_ads;
 
             var result = {
                 tab: tab,
@@ -826,7 +830,9 @@ function getCurrentTabInfo(callback, secondTime) {
                 tab_blocked: tab_blocked,
                 display_stats: display_stats,
                 display_menu_stats: display_menu_stats,
-                user_id: user_id
+                user_id: user_id,
+                ads_per: ads_per,
+                total_ads: total_ads
             };
 
             if (!disabled_site) {

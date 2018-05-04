@@ -6,7 +6,15 @@ $(function() {
           $("#enable_" + name).prop("checked", optionalSettings[name]);
           if ("user_id" === name)
           {
-             $("#study_user_id").val(optionalSettings["user_id"]);
+             $("#user_id").val(optionalSettings["user_id"]);
+          }
+          if ("ads_per" === name)
+          {
+             $("#ads_per").val(optionalSettings["ads_per"]);
+          }
+          if ("total_ads" === name)
+          {
+             $("#total_ads").val(optionalSettings["total_ads"]);
           }
       }
 
@@ -18,7 +26,7 @@ $(function() {
         $(".exclude_safari_content_blocking").hide();
     }
     $("input.feature[type='text']").change(function() {
-        BGcall("set_user", $(this).val());
+        BGcall("set_text_setting", $(this).attr('id'), $(this).val());
     });
     $("input.feature[type='checkbox']").change(function() {
         var is_enabled = $(this).is(":checked");
