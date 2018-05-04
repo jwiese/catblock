@@ -304,7 +304,7 @@ var picinjection = {
                     },
                     click: function() {
 
-
+                      //Send a post request to AWS to log the click information. Redirect the user to the specified URL for the ad
                       function log(settings) {
                           $.ajax({
                               type: "POST",
@@ -462,6 +462,11 @@ var picinjection = {
               el.style.cssText = oldCssText; // Re-hide the section
               var addedImgs = document.getElementsByClassName("picinjection-image");
               replaced = addedImgs;
+               /*
+                * This is the core of the improvements to ad placement. It works by wrapping ads in a flexbox that handles the actual
+                * layout on the page. The algorithm below mainly handles when to group ads together and takes into consideration user SETTINGS
+                * for ads on a page and grouping.
+                */
               for (var i = 0; i < addedImgs.length; i++) {
                   var displayVal = window.getComputedStyle(addedImgs[i]).display;
                   if (displayVal === "none") {
@@ -473,6 +478,7 @@ var picinjection = {
                   var next = $(addedImgs[i]).next();
                   var prev = $(addedImgs[i]).prev();
 
+                  // If an ad is next to an ad holder, ad holder absorbs the ad
                   if (next.attr('class') == "ad_Holder" || next.next().attr('class') == "ad_Holder")
                   {
                     next.append(addedImgs[i]);
@@ -483,6 +489,8 @@ var picinjection = {
                   }
                   else
                   {
+                      //If an ad isn't next to an ad holder and isn't in an ad holder, wrap the ad in an ad holder.
+                      //This is also where analytics for ad displayed is handled.
                       if(parent.attr('class') != "ad_Holder")
                       {
                         $.ajax({
@@ -501,7 +509,7 @@ var picinjection = {
                         $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;"></div>');
                       }
                   }
-
+                  //If there are more ads on the page than we want, or if there are more ads in a block than needed, we remove them from the page. 
                   if ((parent.attr('class') == "ad_Holder" && parent.children().length > settings['ads_per']) || (i > settings['total_ads']))
                   {
                     $(addedImgs[i]).remove()
