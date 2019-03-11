@@ -37,11 +37,13 @@ class Channels {
         // Check, whether such a class exists
         var klass = null;
         switch (data.name) {
-            case "TheCatsOfCatBlockUsersChannel": klass = TheCatsOfCatBlockUsersChannel;
+            case "StaticPhotosChannel": klass = StaticPhotosChannel;
                 break;
+            case "HyperlinksChannel": klass = HyperlinksChannel;
+                break;
+            case "GifsChannel": klass = GifsChannel;
+            break;
             case "AprilFoolsCatsChannel": klass = AprilFoolsCatsChannel;
-                break;
-            case "TheCatsOfProjectCATS": klass = TheCatsOfProjectCATS;
                 break;
             case "FlickrSearchChannel": klass = FlickrSearchChannel;
                 break;
@@ -122,7 +124,7 @@ class Channels {
     // |channelId| if specified, trying to match the ratio of |width| and
     // |height| decently.  Returns undefined if there are no enabled channels.
     randomListing(opts) {
-        var allListings = [];
+        var allListings = [], goodFitListings = [], goodRatioListings = [];
 
         for (var id in this._channelGuide) {
             var data = this._channelGuide[id];
@@ -130,9 +132,30 @@ class Channels {
                 allListings.push.apply(allListings, data.channel.getListings());
             }
         }
-        // TODO: care about |width| and |height|
-        var randomIndex = Math.floor(Math.random() * allListings.length);
-        return allListings[randomIndex];
+
+        if(opts.width > 0 && opts.height > 0){
+
+            var targetRatio = opts.width/opts.height;
+
+            allListings.forEach(function(element){
+                if(element.width === opts.width && element.height === opts.height){
+                    goodFitListings.push(element);
+                }
+
+                var elementRatio = element.width/element.height;
+
+                if(Math.abs(elementRatio - targetRatio) < .5){
+                    goodRatioListings.push(element);
+                }
+            });
+        }
+
+        var targetArray = allListings;
+        if(goodFitListings.length>1) targetArray = goodFitListings;
+        else if(goodRatioListings.length>1) targetArray = goodRatioListings;
+
+        var randomIndex = Math.floor(Math.random() * targetArray.length);
+        return targetArray[randomIndex];
     }
 
     _loadFromStorage() {
@@ -142,15 +165,17 @@ class Channels {
         if (!entries || (entries.length > 0 && !entries[0].name)) {
             // Default set of channels
             if (storage_get("project_cats")) {
-                this.add({ name: "TheCatsOfProjectCATS", param: undefined, enabled: true });
-                this.add({ name: "TheCatsOfCatBlockUsersChannel", param: undefined,
-                      enabled: false });
-                this.add({ name: "AprilFoolsCatsChannel", param: undefined, enabled: false });
-            } else {
-                this.add({ name: "TheCatsOfCatBlockUsersChannel", param: undefined,
+                this.add({ name: "StaticPhotosChannel", param: undefined, enabled: true });
+                this.add({ name: "HyperlinksChannel", param: undefined, enabled: true });
+                this.add({ name: "GifsChannel", param: undefined,
                       enabled: true });
-                this.add({ name: "AprilFoolsCatsChannel", param: undefined, enabled: true });
-                this.add({ name: "TheCatsOfProjectCATS", param: undefined, enabled: false });
+                // this.add({ name: "AprilFoolsCatsChannel", param: undefined, enabled: false });
+            } else {
+                this.add({ name: "StaticPhotosChannel", param: undefined, enabled: true });
+                this.add({ name: "HyperlinksChannel", param: undefined, enabled: true });
+                this.add({ name: "GifsChannel", param: undefined,
+                      enabled: true });
+                // this.add({ name: "AprilFoolsCatsChannel", param: undefined, enabled: false });
             }
         } else {
             for (var i=0; i < entries.length; i++) {
@@ -262,7 +287,7 @@ class FlickrChannel extends Channel {
     // See http://www.flickr.com/services/api/misc.urls.html Size Suffixes.
     // Change this if we want a different size.
     static get _size() {
-        return "n"; // 320 on longest side
+        return "k"; // original image
     }
 
     // Hit the Flickr API |method| passing in |args| with some constants added.
@@ -348,14 +373,20 @@ class FlickrPhotosetChannel extends FlickrChannel {
 }
 
 // Channel pulling from a Flickr channel "The Cats of CatBlock users"
-class TheCatsOfCatBlockUsersChannel extends FlickrPhotosetChannel {
+class StaticPhotosChannel extends FlickrPhotosetChannel {
     constructor() {
-        super("72157629665759768");
+        super("72157687506204294");
     }
 }
 
-class TheCatsOfProjectCATS extends FlickrPhotosetChannel {
+class HyperlinksChannel extends FlickrPhotosetChannel {
     constructor() {
-        super("72157672535515292");
+        super("72157702346398784");
+    }
+}
+
+class GifsChannel extends FlickrPhotosetChannel {
+    constructor() {
+        super("72157688626260950");
     }
 }
