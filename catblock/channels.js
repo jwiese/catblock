@@ -133,22 +133,22 @@ class Channels {
             }
         }
 
-        if(opts.width > 0 && opts.height > 0){
+        var tempWidth = opts.width < 10 || opts.width === undefined ? 1000 : opts.width;
+        var tempHeight =  opts.height < 10 || opts.height === undefined ? 1000 : opts.height;
 
-            var targetRatio = opts.width/opts.height;
+        var targetRatio = tempWidth/tempHeight;
 
-            allListings.forEach(function(element){
-                if(element.width === opts.width && element.height === opts.height){
-                    goodFitListings.push(element);
-                }
+        allListings.forEach(function(element){
+            if(element.width === tempWidth && element.height === tempHeight){
+                goodFitListings.push(element);
+            }
 
-                var elementRatio = element.width/element.height;
+            var elementRatio = element.width/element.height;
 
-                if(Math.abs(elementRatio - targetRatio) < .5){
-                    goodRatioListings.push(element);
-                }
-            });
-        }
+            if(Math.abs(elementRatio - targetRatio) < .5){
+                goodRatioListings.push(element);
+            }
+        });
 
         var targetArray = allListings;
         if(goodFitListings.length>1) targetArray = goodFitListings;
