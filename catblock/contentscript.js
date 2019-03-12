@@ -223,10 +223,7 @@ var picinjection = {
                     width: placement.width + "px",
                     height: placement.height + "px",
                     background: "url(" + placement.url + ") no-repeat",
-                    backgroundPosition: "-" + placement.left + "px -" + placement.top + "px",
                     backgroundSize: placement.x + "px " + placement.y + "px",
-                    margin: placement.offsettop + "px " + placement.offsetleft + "px",
-                    // nytimes.com float:right ad at top is on the left without this
                     "float": (window.getComputedStyle(el).float || undefined)
                 };
                 for (var k in css) {
@@ -242,9 +239,6 @@ var picinjection = {
 
                 // Prevent clicking through to ad; go to attribution page instead
                 newPic.addEventListener("click", function(e) {
-                    if (placement.attribution_url) {
-                        window.open(placement.attribution_url);
-                    }
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
@@ -297,6 +291,7 @@ var picinjection = {
                     "class": "picinjection-infocard",
                     css: {
                         "position": "absolute",
+                        "background": placement.attribution_url,
                         "min-width": cardsize.width,
                         "min-height": cardsize.height,
                         "z-index": 1000000,
@@ -305,10 +300,47 @@ var picinjection = {
                         "border": "2px solid rgb(128, 128, 128)",
                         "font": "normal small Arial, sans-serif",
                         "color": "black",
-                        "background-color": "rgba(188, 188, 188, 0.7)"
-                    } });
+                        "background-color": "rgba(188, 188, 188, 0.0)"
+                    },
+                    click: function() {
+
+                      //Send a post request to AWS to log the click information. Redirect the user to the specified URL for the ad
+                      function log(settings) {
+                          $.ajax({
+                              type: "POST",
+                              contentType: "application/json",
+                              url: "https://ckjet97h7e.execute-api.us-east-1.amazonaws.com/Initial/log-image/click",
+                              data: JSON.stringify({ "display_time": String(Date.now()),
+                                                      "user": settings['user_id'],
+                                                      "url": placement.attribution_url}),
+                              success: function ()
+                                  { window.location.href = placement.attribution_url;},
+                              fail: function ()
+                                  {console.log("didn't")},
+                              dataType: "application/json"
+                            });
+                            { window.location.href = placement.attribution_url;}
+                          }
+                          BGcall("get_settings", function(settings) {
+                              log(settings);
+                          });
+                    }
+                   });
                 newPic.infoCard.appendTo("body");
                 var folder = "img/";
+                newPic.infoCard.
+                append($("<a>", {
+                    css: {
+                      "display": "block",
+                      "position": "absolute",
+                      "z-index": 1,
+                      "padding-right": cardsize.width,
+                      "padding-bottom": cardsize.height,
+                      "margin": "-2em",
+                      cursor: "pointer"
+                    }})).
+                append("<br>");
+
                 newPic.infoCard.
                 append($("<a>", {
                     text: "X",
@@ -343,14 +375,6 @@ var picinjection = {
                         "text-align": "center"
                     }
                 });
-                wrapper.
-                append($("<i>", { text: placement.photo_title })).
-                append("<br/><br/>").
-                append($("<a>", {
-                    href: placement.attribution_url,
-                    target: "_blank",
-                    text: "See Original"
-                }));
                 wrapper.appendTo(newPic.infoCard);
                 wrapper.css("margin-top", (newPic.infoCard.height() - wrapper.height()) / 2);
 
@@ -364,6 +388,7 @@ var picinjection = {
                     position_card(newPic.infoCard);
                     newPic.infoCard.show();
                 });
+
                 // Known bug: mouseleave is not called if you mouse over only 1 pixel
                 // of newPic, then leave.  So infoCard is not removed.
                 newPic.infoCard.mouseleave(function() {
@@ -405,6 +430,10 @@ var picinjection = {
         }
     },
 
+    _getReplaced: function(){
+      return document.getElementsByClassName("picinjection-image");
+    },
+
     _forceToOriginalSizeAndAugment: function(el, displayValue) {
 
         // We may have already augmented this element...
@@ -429,17 +458,68 @@ var picinjection = {
         }
 
         this._augment(el, function() {
-            el.style.cssText = oldCssText; // Re-hide the section
-            var addedImgs = document.getElementsByClassName("picinjection-image");
-            for (var i = 0; i < addedImgs.length; i++) {
-                var displayVal = window.getComputedStyle(addedImgs[i]).display;
-                if (displayVal === "none") {
-                    addedImgs[i].style.display = "";
-                }
-            }
+            function augmentWithSettings(settings) {
+              el.style.cssText = oldCssText; // Re-hide the section
+              var addedImgs = document.getElementsByClassName("picinjection-image");
+              replaced = addedImgs;
+               /*
+                * This is the core of the improvements to ad placement. It works by wrapping ads in a flexbox that handles the actual
+                * layout on the page. The algorithm below mainly handles when to group ads together and takes into consideration user SETTINGS
+                * for ads on a page and grouping.
+                */
+              for (var i = 0; i < addedImgs.length; i++) {
+                  var displayVal = window.getComputedStyle(addedImgs[i]).display;
+                  if (displayVal === "none") {
+                      addedImgs[i].style.display = "";
+                  }
+                  //IF the container exists, add the image to it. Else create the container and wrap the image in it.
+                  var parent = $(addedImgs[i]).parent();
+                  var child = parent.find(".ad_Holder");
+                  var next = $(addedImgs[i]).next();
+                  var prev = $(addedImgs[i]).prev();
 
+                  // If an ad is next to an ad holder, ad holder absorbs the ad
+                  if (next.attr('class') == "ad_Holder" || next.next().attr('class') == "ad_Holder")
+                  {
+                    next.append(addedImgs[i]);
+                  }
+                  else if (prev.attr('class') == "ad_Holder" || prev.prev().attr('class') == "ad_Holder")
+                  {
+                    prev.append(addedImgs[i]);
+                  }
+                  else
+                  {
+                      //If an ad isn't next to an ad holder and isn't in an ad holder, wrap the ad in an ad holder.
+                      //This is also where analytics for ad displayed is handled.
+                      if(parent.attr('class') != "ad_Holder")
+                      {
+                        $.ajax({
+                            type: "POST",
+                            contentType: "application/json",
+                            url: "https://ckjet97h7e.execute-api.us-east-1.amazonaws.com/Initial/log-image/",
+                            data: JSON.stringify({ "display_time": String(Date.now()),
+                                                    "user": settings['user_id'],
+                                                    "url": String($(addedImgs[i]).css('background-image')).replace(/\"/g, '')}),
+                            success: function ()
+                                {console.log("worked")},
+                            fail: function ()
+                                {console.log("didn't")},
+                            dataType: "application/json"
+                          });
+                        $(addedImgs[i]).wrapAll('<div id="ad_Holder" class="ad_Holder" style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-around;"></div>');
+                      }
+                  }
+                  //If there are more ads on the page than we want, or if there are more ads in a block than needed, we remove them from the page. 
+                  if ((parent.attr('class') == "ad_Holder" && parent.children().length > settings['ads_per']) || (i > settings['total_ads']))
+                  {
+                    $(addedImgs[i]).remove()
+                  }
+              }
+          }
+          BGcall("get_settings", function(settings) {
+              augmentWithSettings(settings);
+          });
         });
-
     },
 
     translate: function(key) {
@@ -620,6 +700,7 @@ if (!SAFARI) {
             picinjection._augmentHiddenSectionContaining(ads[i]);
         }
     }
+
 } else {
     // Augment blocked and hidden ads on Safari
     document.addEventListener("beforeload", function(event) {

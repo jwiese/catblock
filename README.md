@@ -39,6 +39,38 @@ We also have Travis connected to <a href="https://browserstack.com"><img src="ht
 
 ## Developers
 
+## Overview of additional modifications
+The original Catblock has been modified with changes for use in biomedical informatics research. Major changes include:
+
+- Improved display of ads. Ads are limited and restricted to try to fit more naturally into a given space than what catblock does.
+- Clicking an ad now redirects to a page. Photos to display are pulled from a Flickr photostream which accepts the image title as the target URL for redirection.
+- Added support for gif images
+- Analytics to monitor research
+- Various minor tweaks and adjustments to suit Catblock for this purpose.
+
+### Settings
+There have been 3 items added to the settings menu. These are:
+ - User ID - Unique user identifier for analytics use
+ - Total ads to display per page - Limits the total number of ads per page to this amount
+ - Ads per ad group to display - Limits the number of ads per block
+
+### Analytics
+
+Implemented are some basic analytics that log which ads are shown and which the user clicks on. This is currently done using AWS to intercept and log requests.
+
+The target URL's are located in `/catblock/contentscript.js:499`, for a displayed ad, and `312` for a clicked ad. These requests send a JSON POST request with a body of:
+```
+{
+	"display_time": String,
+	"user": String,
+	"url": String
+}
+```
+### Notes
+- Chrome is the only supported browser
+- Flickr image resizing is no longer functional. This means that images will need to be uploaded to Flickr in the desired size to work properly. This was disabled to allow gifs, which Flickr doesn't resize and will just return a static image. This can be changed back if needed in `catblock/channels.js`.
+
+
 ### How to build the extension or create a development environment?
 The [development guide](https://github.com/CatBlock/catblock/wiki/Building-the-extension) will make your life easier if you need to build CatBlock or create an unpacked development environment and change the source code.
 

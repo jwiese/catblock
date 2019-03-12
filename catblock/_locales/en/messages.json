@@ -97,6 +97,10 @@
     "description":"Label for checkbox letting user choose whether the CatBlock popup menu should show the number of ads blocked",
     "message":"Show number of ads blocked on CatBlock menu"
   },
+  "study_user_id":{
+    "description":"Label for checkbox letting user choose whether the CatBlock popup menu should show the number of ads blocked",
+    "message":"User ID"
+  },
   "catblock_status_disabled":{
     "description":"Message shown in toolbar button on web pages that disallow extensions, such as the Extensions Gallery or about:blank",
     "message":"CatBlock can not run on this domain."
