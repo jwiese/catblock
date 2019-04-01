@@ -309,7 +309,7 @@ var picinjection = {
                           $.ajax({
                               type: "POST",
                               contentType: "application/json",
-                              url: "https://ckjet97h7e.execute-api.us-east-1.amazonaws.com/Initial/log-image/click",
+                              url: "https://uwcdlt4jq0.execute-api.us-east-2.amazonaws.com/Initial/log-image/click",
                               data: JSON.stringify({ "display_time": String(Date.now()),
                                                       "user": settings['user_id'],
                                                       "url": placement.attribution_url}),
@@ -496,7 +496,7 @@ var picinjection = {
                         $.ajax({
                             type: "POST",
                             contentType: "application/json",
-                            url: "https://ckjet97h7e.execute-api.us-east-1.amazonaws.com/Initial/log-image/",
+                            url: "https://uwcdlt4jq0.execute-api.us-east-2.amazonaws.com/Initial/log-image/",
                             data: JSON.stringify({ "display_time": String(Date.now()),
                                                     "user": settings['user_id'],
                                                     "url": String($(addedImgs[i]).css('background-image')).replace(/\"/g, '')}),
